@@ -4,6 +4,8 @@ lab:
     description: 'Learn how to use the OpenAI SDK and the Responses API to build a chat app that connects to a model deployed in Microsoft Foundry.'
     level: 300
     duration: 45
+    islab: true
+    status: 'released'
 ---
 
 # Create a generative AI chat app
@@ -12,44 +14,53 @@ In this exercise, you use the OpenAI SDK and the Responses API to create a chat 
 
 This exercise takes approximately **45** minutes.
 
+> **Note**: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.
+
 ## Prerequisites
 
-To complete this exercise, you need:
+Before starting this exercise, ensure you have:
 
-- An [Azure subscription](https://azure.microsoft.com/free/) with permissions to create AI resources.
-- [Visual Studio Code](https://code.visualstudio.com/) installed on your local machine.
-- [Python 3.13](https://www.python.org/downloads/release/python-31312/) installed on your local machine.
-- [Git](https://git-scm.com/downloads) installed on your local machine.
+- An active [Azure subscription](https://azure.microsoft.com/pricing/purchase-options/azure-account)
+- [Visual Studio Code](https://code.visualstudio.com/) installed
+- [Python version **3.13.xx**](https://www.python.org/downloads/release/python-31312/) installed\*
+- [Git](https://git-scm.com/install/) installed and configured
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) installed
+
+> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
 
 ## Create a Microsoft Foundry project
 
 Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.
 
-1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.
+1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` to start building; signing in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in.
 
-1. If it is not already enabled, in the tool bar the top of the page, enable the **New Foundry** option. Then, if prompted, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
+1. If it is not already enabled, in the tool bar at the top of the page, enable the **New Foundry** option. Then, if prompted, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
     - **Foundry resource**: *Use the default name for your resource (usually {project_name}-resource)*
     - **Subscription**: *Your Azure subscription*
     - **Resource group**: *Create or select a resource group*
-    - **Region**: Select any of the **AI Foundry recommended** regions
+    - **Region**: Select any of the **AI Foundry recommended** regions in **[this list](https://learn.microsoft.com/azure/foundry/openai/how-to/responses#region-availability)**{:target="_blank"}
 
-1. Select **Create**. Wait for your project to be created.
+1. Wait for your project to be created. Then view its home page.
 
 ## Deploy a model
 
-Now deploy a model that you'll use in your chat application.
+Next, let's deploy a model that you'll use in your chat application.
 
-1. On the project home page, in the **Start building** menu, select **Browse models**.
-1. In the model catalog, search for `gpt-4.1`.
+1. Now you're ready to explore models. On the **Discover** page, select the **Models** tab to view the Microsoft Foundry model catalog.
+1. In the model catalog, search for `gpt-5.2`.
 1. Review the model card, and then deploy it using the default settings.
 1. When the model has been deployed, it will open in the model playground - you can test it there if you like.
 
-## Get the endpoint and key
+## Get the endpoint
 
-You'll need an endpoint and key to connect to the model from a client application. In this exercise, we're going to use the OpenAI SDK to chat with the model; and we'll use the Azure OpenAI endpoint to connect to it.
+You'll need an endpoint to connect to the model from a client application. In this exercise, we're going to use the OpenAI SDK to chat with the model; and we'll use the Azure OpenAI endpoint with Entra ID authentication to connect to it.
+
+> **Note**: As an alternative to Entra ID authentication, you could use the API Key for the project. using Entra ID authentication is preferred whenever possible.
 
 1. On the menu bar, select the **Home** page.
-1. Note the **Project API key** and **Azure OpenAI Endpoint** displayed there.
+1. Note the **Azure OpenAI Endpoint** displayed there.
+
+    > **Tip**: You'll use the **Azure OpenAI Endpoint** in this exercise, <u>not</u> the project endpoint!
 
 ## Create a client application to chat with the model
 
@@ -67,7 +78,7 @@ The initial application files you'll need to develop your chat application are p
 ### Prepare the application configuration
 
 1. In Visual Studio Code, view the **Extensions** pane; and if it is not already installed, install the **Python** extension.
-1. In the **Command Palette**, use the command `python:select interpreter`. Then select an existing environment if you have one, or create a new **Venv** environment based on your Python 3.1x installation.
+1. In the **Command Palette**, use the command `python:select interpreter`. Then create a new **Venv** environment based on your Python 3.13 installation.
 
     > **Tip**: If you are prompted to install dependencies, you can install the ones in the *requirements.txt* file in the */labfiles/foundry-chat/python/chat-app* folder; but it's OK if you don't - we'll install them later!
 
@@ -82,15 +93,15 @@ The initial application files you'll need to develop your chat application are p
     > **Note**: Opening the terminal in Visual Studio Code will automatically activate the Python environment. You may need to enable running scripts on your system.
 
 1. Ensure that the terminal is open in the **labfiles/foundry-chat/python/chat-app** folder with the prefix **(.venv)** to indicate that the Python environment you created is active.
-1. Install the OpenAI SDK package and other required packages by running the following command:
+1. Install the OpenAI SDK, Azure Identity, and other required packages by running the following command:
 
     ```
-    pip install -r requirements.txt openai
+    pip install -r requirements.txt
     ```
 
-1. In the **Explorer** pane, in the **labfiles/foundry-chat/python/chat-app** folder, select the **.env** file to open it. Then update the configuration values to include the **Project API key** and **Azure OpenAI Endpoint** for your **gpt-4.1** model.
+1. In the **Explorer** pane, in the **labfiles/foundry-chat/python/chat-app** folder, select the **.env** file to open it. Then update the configuration values to include the **Azure OpenAI Endpoint** and the name assigned to the deployment for the **gpt-5.2** model.
 
-    > **Tip**: Copy the **Project API key** and **Azure OpenAI Endpoint** (not the project endpoint!) from the project home page in the Foundry portal, and rename the model deployment if your deployment isn't named *gpt-4.1*.
+    > **Tip**: Copy the **Azure OpenAI Endpoint** (not the project endpoint!) from the project home page in the Foundry portal, and enter the exact deployment name assigned to your deployment in the `MODEL_DEPLOYMENT` setting.
 
     Save the modified configuration file.
 
@@ -108,15 +119,20 @@ The *ChatCompletions* API is a well-established way to build client applications
     ```python
    # import namespaces
    from openai import OpenAI
+   from azure.identity import DefaultAzureCredential, get_bearer_token_provider
     ```
 
 1. In the **main** function, note that code to load the endpoint and key from the configuration file has already been provided. Then find the comment **Initialize the OpenAI client**, and add the following code to create a client for the OpenAI API:
 
     ```python
    # Initialize the OpenAI client
+   token_provider = get_bearer_token_provider(
+        DefaultAzureCredential(), "https://ai.azure.com/.default"
+   )
+    
    openai_client = OpenAI(
         base_url=azure_openai_endpoint,
-        api_key=api_key
+        api_key=token_provider
    )
     ```
 
@@ -142,7 +158,16 @@ The *ChatCompletions* API is a well-established way to build client applications
 
     Note that the *ChatCompletions* API uses a JSON collection of *messages* to encapsulate the conversation. Often, these consist of a *system prompt* that provides instructions to the model, and a *user prompt* that includes the user's input.
 
-1. Save the changes to the code file. Then, in the terminal pane, use the following command to run the program:
+1. Save the changes to the code file. Then, in the terminal pane, use the following command to sign into Azure.
+
+    ```powershell
+    az login
+    ```
+
+    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) for details.
+
+1. When prompted, follow the instructions to sign into Azure. Then complete the sign in process in the command line, viewing (and confirming if necessary) the details of the subscription containing your Foundry resource.
+1. After you have signed in, enter the following command to run the application:
 
     ```powershell
    python chat-app.py
@@ -222,7 +247,7 @@ To maintain the conversational context, we need to include references to previou
    last_response_id = response.id
     ```
 
-    Using this technique, you can pass the ID of the previous reponse to maintain context. You could also implement more complex logic to pass an ID from any orevious response to redirect a conversation or resume a previous conversational thread.
+    Using this technique, you can pass the ID of the previous response to maintain context. You could also implement more complex logic to pass an ID from any previous response to redirect a conversation or resume a previous conversational thread.
 
 1. Save the changes to the code, and in the terminal pane, re-run the application (`python chat-app.py`).
 1. When prompted, enter the same prompt as before:
@@ -239,7 +264,7 @@ To maintain the conversational context, we need to include references to previou
     How does it compare to modern LLMs?
     ```
 
-    This time, the app should respond with a comparison of the ELIZA chatbot and modern LLMs. The response may be quite lengthy, and the app waits until it has all been revceived from the mdeol before displaying it; which may make the app seem unresponsive. We'll fix that next!
+    This time, the app should respond with a comparison of the ELIZA chatbot and modern LLMs. The response may be quite lengthy, and the app waits until it has all been received from the model before displaying it, which may make the app seem unresponsive. We'll fix that next!
 
 1. Enter the prompt `quit` to end the application.
 
@@ -283,7 +308,7 @@ To handle long responses, you can use *streaming* to start processing partial re
     How does it compare to modern LLMs?
     ```
 
-    Again, the response should be diaplayed incrementally.
+    Again, the response should be displayed incrementally.
 
 1. Enter the prompt `quit` to end the application.
 
@@ -302,15 +327,21 @@ The OpenAI SDK offers an asynchronous option that can increase the responsivenes
    # import namespaces for async
    import asyncio
    from openai import AsyncOpenAI
+   from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
     ```
 
 1. In the **main** function, note that code to load the endpoint and key from the configuration file has already been provided. Then find the comment **Initialize an async OpenAI client**, and add the following code to create a client for the OpenAI API:
 
     ```python
    # Initialize an async OpenAI client
+   credential = DefaultAzureCredential()
+   token_provider = get_bearer_token_provider(
+    credential, "https://ai.azure.com/.default"
+   )
+
    async_client = AsyncOpenAI(
         base_url=azure_openai_endpoint,
-        api_key=api_key
+        api_key=token_provider
    )
     ```
 
@@ -329,7 +360,14 @@ The OpenAI SDK offers an asynchronous option that can increase the responsivenes
    last_response_id = response.id
     ```
 
-    Note that the *ChatCompletions* API uses a JSON collection of *messages* to encapsulate the conversation. Often, these consist of a *system prompt* that provides instructions to the model, and a *user prompt* that includes the user's input.
+    This code awaits an asynchronous response from the model.
+
+1. At the end of the **main** function, in the **finally** block, find the comment **Close the async client session** and add the following code to close the asynchronous client:
+
+    ```python
+   # Close the async client session
+    await credential.close()
+    ```
 
 1. Save the changes to the code file. Then, in the terminal pane, use the following command to run the program:
 

@@ -1,13 +1,13 @@
 ---
 lab:
   title: Prepare for an AI development project
-  description: Learn how to organize AI resources in a Microsoft Foundry project and get started with the Visual Studio Code extension for Foundry.
+  description: Learn how to organize AI resources in a Microsoft Foundry project and get started with the Foundry Toolkit extension for Visual Studio Code.
   level: 200
   duration: 30
   islab: true
+  status: 'released'
   primarytopics:
     - Microsoft Foundry
-    - Visual Studio
     - Visual Studio Code
 ---
 
@@ -21,24 +21,27 @@ This exercise takes approximately **30** minutes.
 
 ## Prerequisites
 
-To complete this exercise, you need:
+Before starting this exercise, ensure you have:
 
-- An [Azure subscription](https://azure.microsoft.com/free/) with permissions to create AI resources.
-- [Visual Studio Code](https://code.visualstudio.com/) installed on your local machine.
-- [Python 3.13](https://www.python.org/downloads/) or later installed on your local machine.
-- [Git](https://git-scm.com/downloads) installed on your local machine.
+- An active [Azure subscription](https://azure.microsoft.com/pricing/purchase-options/azure-account)
+- [Visual Studio Code](https://code.visualstudio.com/) installed
+- [Python version **3.13.xx**](https://www.python.org/downloads/release/python-31312/) installed\*
+- [Git](https://git-scm.com/install/) installed and configured
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) installed
+
+> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
 
 ## Create a Microsoft Foundry project
 
 Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.
 
-1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.
+1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` to start building; signing in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in.
 
-1. If it is not already enabled, in the tool bar the top of the page, enable the **New Foundry** option. Then, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
+1. If it is not already enabled, in the tool bar at the top of the page, enable the **New Foundry** option. Then, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
     - **Foundry resource**: *Use the default name for your resource (usually {project_name}-resource)*
     - **Subscription**: *Your Azure subscription*
     - **Resource group**: *Create or select a resource group*
-    - **Region**: Select any of the **AI Foundry recommended** regions
+    - **Region**: Select any of the **AI Foundry recommended** regions in **[this list](https://learn.microsoft.com/azure/foundry/openai/how-to/responses#region-availability)**{:target="_blank"}
 
     > **Tip**: Make a note of the region you selected. You'll need it later!
 
@@ -46,21 +49,19 @@ Microsoft Foundry uses projects to organize models, resources, data, and other a
 
     When it is ready, the project home page will open.
 
-    ![Screenshot of the Foundry project home page.](../media/ai-foundry-project-home.png)
+    ![Screenshot of the Foundry project home page.](../media/foundry-portal-home.png)
 
 ## Deploy and test a model
 
 At the core of any generative AI project, there's at least one generative AI model.
 
-1. In the **Start building** menu, select **Browse models**.
+1.  Now you're ready to explore models. On the **Discover** page, select the **Models** tab to view the Microsoft Foundry model catalog.
 
-    This opens the Foundry Models catalog, which includes a wide selection of models from multiple providers.
-
-1. Search for the `gpt-4.1` model, and then select it in the search results to view its model card.
+1. Search for the `gpt-5.2` model, and then select it in the search results to view its model card.
 
     Model cards provide information about models to help you understand their capabilities and limitations, and determine if they are suitable for your requirements.
 
-    ![Screenshot of the gpt-4.1 model card.](../media/gpt4.1-details.png)
+    ![Screenshot of the gpt-5.2 model card.](../media/gpt5.2-details.png)
 
 1. Select **Deploy** with the default settings to create a deployment of the model.
 
@@ -76,7 +77,7 @@ At the core of any generative AI project, there's at least one generative AI mod
     You are an AI assistant that can provide information and advice about AI software development.
     ```
 
-1. In the chat window, enter a query such as `Decribe three key considerations for working with Large Language Models for AI application development.` and view the response:
+1. In the chat window, enter a query such as `Describe three key considerations for working with Large Language Models for AI application development.` and view the response:
 
     Hopefully the model provided some key considerations for you to think about!
 
@@ -104,35 +105,37 @@ At the core of any generative AI project, there's at least one generative AI mod
     Note that the Foundry resource has an *endpoint*, through which client applications can access resource-level functionality (such as Foundry Tools that are shared across all projects in the resource).
 
 1. In the top menu bar, select **Home** to return to the project home page.
-1. Note the project endpoint, key, and OpenAI endpoint.
+1. Note the key, project endpoint, and Azure OpenAI endpoint.
 
     This information is used to connect to your project-level resouces from client applications.
 
     - The *key* is used for key-based authentication to models and tools (though in most production scenarios you should consider using Microsoft Entra ID authentication based on authenticated user and application identities).
-    - The *project endpoint* is used to access models provided directly in Foundry (including OpenAI models) using the OpenAI **Resources** API, and to access Foundry-specific APIs (such as the Foundry Agent service).
-    - The *OpenAI endpoint* is used to access models that are compatible with the OpenAI APIs, including the **Chat Completions** API and other specialized functions.
+    - The *project endpoint* is used to access models provided directly in Foundry (including OpenAI models) using the OpenAI **Responses** API, and to access Foundry-specific APIs (such as the Foundry Agent service).
+    - The *OpenAI endpoint* is used to access models using OpenAI APIs, including the **Chat Completions** API and the **Responses** API.
 
-## Install the Visual Studio Code extension for Microsoft Foundry
+## Install the Foundry Toolkit extension for Visual Studio Code
 
-As a developer, you may spend some time working in the Foundry portal; but you're also likely to spend a lot of time in Visual Studio Code. The Extension for Microsoft Foundry provides a convenient way to work with Foundry project resources without leaving the development environment.
+As a developer, you may spend some time working in the Foundry portal; but you're also likely to spend a lot of time in Visual Studio Code. The Foundry Toolkit extension provides a convenient way to work with Foundry project resources without leaving the development environment.
 
-1. Open Visual Studio Code, and in the navigation bar on the left, view the **Extensions** page.
+1. Start Visual Studio Code
+1. In the navigation bar on the left, view the **Extensions** page.
+1. Search the extensions marketplace for `Foundry Toolkit`, and install the **Foundry Toolkit for VS Code** extension.
 
-    ![Screenshot of the Visual Studio Code extensions page.](../media/vscode-extensions.png)
+    The extension may take a minute or so to install.
 
-1. Search the extensions marketplace for `Microsoft Foundry`, and install the **Microsoft Foundry** extension.
-1. After installing the extension, select its page in the left navigation bar.
+1. After installing the extension, select the **Foundry Toolkit** page in the left navigation bar; and wait for it to load.
 
-    ![Screenshot of the Microsoft Foundry Visual Studio Code extension.](../media/foundry-vs-extension.png)
+    ![Screenshot of the Foundry Toolkit Visual Studio Code extension.](../media/foundry-vs-extension.png)
 
-1. In the Foundry extension pane, use the **Set default project** button to connect to Azure (signing in with your credentials) and select the Foundry project you created previously.
-1. After setting the default project, in the Foundry extension pane, expand **Models** and select the **gpt-4.1** model you deployed previously.
+1. In the Foundry Toolkit pane, expand **Microsoft Foundry Resources** and set the default project by connecting to Azure (signing in with your credentials) and selecting the Foundry project you created previously.
 
-    You can view the details required to connect to and use the model here.
+1. After setting the default project, expand the project, expand **Models**, and select the **gpt-5.2** model you deployed previously.
 
-    ![Screenshot of a model in the Microsoft Foundry Visual Studio Code extension.](../media/vscode-extension-model.png)
+    You can view the model deployment details here.
 
-1. In the Foundry extension pane, in the **Tools** section, select **Model playground** and when prompted, select the **gpt-4.1** model.
+    ![Screenshot of a model in the  Foundry Toolkit Visual Studio Code extension.](../media/vscode-extension-model.png)
+
+1. In the Foundry Toolkit pane, in the **Developer Tools** section, expand **Build** and select **Model playground**. Then select the **gpt-5.2** model (if it is not already selected).
 
     An interactive playground in which you can test the model is opened in Visual Studio Code.
 
@@ -140,7 +143,7 @@ As a developer, you may spend some time working in the Foundry portal; but you'r
 
 ## Summary
 
-In this exercise, you've created a Microsoft Foundry and explored it in the Foundry portal. You've also explored the Microsoft Foundry extension in Visual Studio Code, which provides a convenient way for developers to work with Foundry projects and their assets.
+In this exercise, you've created a Microsoft Foundry and explored it in the Foundry portal. You've also explored the  Foundry Toolkit extension in Visual Studio Code, which provides a convenient way for developers to work with Foundry projects and their assets.
 
 ## Clean up
 
